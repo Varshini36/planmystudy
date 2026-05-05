@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>planmystudy login</title>
+</head>
+<body style="text-align:center; font-family:Arial">
+
+<h2>Login</h2>
+
+<input id="email" placeholder="Email"><br><br>
+<input id="password" type="password" placeholder="Password"><br><br>
+
+<button onclick="login()">Login</button>
+
+<h3>Register</h3>
+
+<input id="rname" placeholder="Username"><br><br>
+<input id="remail" placeholder="Email"><br><br>
+<input id="rpass" type="password" placeholder="Password"><br><br>
+
+<button onclick="register()">Register</button>
+
+<script>
+
+  function register() {
+      fetch('/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+              username: document.getElementById("rname").value,
+              email: document.getElementById("remail").value,
+              password: document.getElementById("rpass").value
+          })
+      })
+      .then(res => res.json())
+      .then(() => alert("Registered"));
+  }
+
+  function login() {
+      fetch('/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+              email: document.getElementById("email").value,
+              password: document.getElementById("password").value
+          })
+      })
+      .then(res => res.json())
+      .then(user => {
+          if(user && user.id){
+              localStorage.setItem("userId", user.id);
+              window.location.href = "index.html";
+          } else {
+              alert("Invalid login");
+          }
+      });
+  }
+
+</script>
+
+</body>
+</html>
