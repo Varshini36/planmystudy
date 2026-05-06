@@ -11,12 +11,10 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    // Register user
     public User register(User user) {
         return userRepository.save(user);
     }
 
-    // Login user
     public User login(String username, String password) {
         User user = userRepository.findByUsername(username);
 
