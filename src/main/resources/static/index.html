@@ -57,7 +57,6 @@
 
 <h1>📚 planmystudy</h1>
 
-<!-- TIMER -->
 <div style="text-align:center;">
     <input id="minutesInput" placeholder="min" style="width:60px;">
     <div id="timer" class="timer">00:00</div>
@@ -69,7 +68,6 @@
 
 <div class="container">
 
-    <!-- TASK -->
     <div class="column">
         <div class="box">
             <h3>Add Task</h3>
@@ -85,7 +83,6 @@
         </div>
     </div>
 
-    <!-- NOTES -->
     <div class="column">
         <div class="box">
             <h3>Add Notes</h3>
@@ -96,7 +93,6 @@
         </div>
     </div>
 
-    <!-- TIMETABLE -->
     <div class="column">
         <div class="box">
             <h3>Timetable</h3>
@@ -110,7 +106,6 @@
 
 </div>
 
-<!-- POPUPS -->
 <div id="taskPopup" class="popup">
     <h3>Tasks</h3>
     <div id="taskPopupContent"></div>
@@ -131,12 +126,12 @@
 
 <script>
 
-    // 🔊 SOUND
-    const alarmSound = new Audio("https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg");
+    const BASE_URL = "https://planmystudy-1.onrender.com";
 
     // ---------- TIMER ----------
     let interval = null;
     let remainingTime = 0;
+    const alarmSound = new Audio("https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg");
 
     function updateTimer(){
         let m = Math.floor(remainingTime / 60);
@@ -155,8 +150,6 @@
             remainingTime = minutesInput.value * 60;
         }
 
-        alarmSound.load();
-
         updateTimer();
 
         interval = setInterval(()=>{
@@ -166,10 +159,7 @@
             } else {
                 clearInterval(interval);
                 interval = null;
-
-                alarmSound.currentTime = 0;
                 alarmSound.play().catch(()=>{});
-
                 alert("Time completed!");
             }
         },1000);
@@ -194,7 +184,7 @@
 
     // ---------- TASK ----------
     function addTask(){
-        fetch('/tasks',{
+        fetch(BASE_URL + '/tasks',{
             method:'POST',
             headers:{'Content-Type':'application/json'},
             body:JSON.stringify({
@@ -204,27 +194,27 @@
                 user:{id:getUserId()}
             })
         }).then(()=>{
-            title.value=""; desc.value=""; status.value="";
+            title.value="";
+            desc.value="";
+            status.value="";
+            alert("Task added");
         });
     }
 
     function deleteTask(id){
-        fetch('/tasks/'+id,{method:'DELETE'})
-        .then(res=>{
-            if(!res.ok) throw "Error";
-            openTaskPopup();
-        }).catch(()=>alert("Task delete failed"));
+        fetch(BASE_URL + '/tasks/' + id,{method:'DELETE'})
+        .then(()=>openTaskPopup());
     }
 
     function openTaskPopup(){
-        fetch('/tasks/user/'+getUserId())
+        fetch(BASE_URL + '/tasks/user/' + getUserId())
         .then(res=>res.json())
         .then(data=>{
             let html="";
             data.forEach(t=>{
                 html+=`
                 <div class="item">
-                ${t.title} - ${t.status}
+                ${t.title} - ${t.status || "pending"}
                 <br>
                 <button class="delete" onclick="deleteTask(${t.id})">Delete</button>
                 </div>`;
@@ -236,7 +226,7 @@
 
     // ---------- NOTES ----------
     function addNote(){
-        fetch('/notes',{
+        fetch(BASE_URL + '/notes',{
             method:'POST',
             headers:{'Content-Type':'application/json'},
             body:JSON.stringify({
@@ -245,20 +235,19 @@
                 user:{id:getUserId()}
             })
         }).then(()=>{
-            noteSubject.value=""; noteContent.value="";
+            noteSubject.value="";
+            noteContent.value="";
+            alert("Note saved");
         });
     }
 
     function deleteNote(id){
-        fetch('/notes/'+id,{method:'DELETE'})
-        .then(res=>{
-            if(!res.ok) throw "Error";
-            openNotesPopup();
-        }).catch(()=>alert("Note delete failed"));
+        fetch(BASE_URL + '/notes/' + id,{method:'DELETE'})
+        .then(()=>openNotesPopup());
     }
 
     function openNotesPopup(){
-        fetch('/notes/user/'+getUserId())
+        fetch(BASE_URL + '/notes/user/' + getUserId())
         .then(res=>res.json())
         .then(data=>{
             let html="";
@@ -277,12 +266,7 @@
 
     // ---------- TIMETABLE ----------
     function addTimetable(){
-        if(!subject.value || !day.value){
-            alert("Enter subject & day");
-            return;
-        }
-
-        fetch('/timetable',{
+        fetch(BASE_URL + '/timetable',{
             method:'POST',
             headers:{'Content-Type':'application/json'},
             body:JSON.stringify({
@@ -291,22 +275,21 @@
                 time:timeInput.value || "",
                 user:{id:getUserId()}
             })
-        }).then(res=>{
-            if(!res.ok) throw "Error";
-            subject.value=""; day.value=""; timeInput.value="";
-        }).catch(()=>alert("Save failed"));
+        }).then(()=>{
+            subject.value="";
+            day.value="";
+            timeInput.value="";
+            alert("Timetable added");
+        });
     }
 
     function deleteTimetable(id){
-        fetch('/timetable/'+id,{method:'DELETE'})
-        .then(res=>{
-            if(!res.ok) throw "Error";
-            openTimetablePopup();
-        }).catch(()=>alert("Delete failed"));
+        fetch(BASE_URL + '/timetable/' + id,{method:'DELETE'})
+        .then(()=>openTimetablePopup());
     }
 
     function openTimetablePopup(){
-        fetch('/timetable/user/'+getUserId())
+        fetch(BASE_URL + '/timetable/user/' + getUserId())
         .then(res=>res.json())
         .then(data=>{
             let html="";
@@ -323,7 +306,6 @@
         });
     }
 
-    // ---------- CLOSE ----------
     function closePopup(id){
         document.getElementById(id).style.display="none";
     }
