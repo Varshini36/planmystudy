@@ -7,7 +7,7 @@
 
 <body style="text-align:center; font-family:Arial; background:#0f172a; color:white;">
 
-<h1>planmystudy</h1>
+<h1>📚 planmystudy</h1>
 
 <h3>Register</h3>
 <input id="regUsername" placeholder="Username"><br><br>
@@ -22,7 +22,6 @@
 <button onclick="login()">Login</button>
 
 <script>
-
   const BASE_URL = "https://planmystudy-1.onrender.com";
 
   function register(){
@@ -34,12 +33,16 @@
               password: regPassword.value
           })
       })
-      .then(res => res.json())
+      .then(res => {
+          if(!res.ok) throw new Error("Register failed");
+          return res.json();
+      })
       .then(user => {
-          alert("Registered successfully");
           localStorage.setItem("userId", user.id);
+          alert("Registered successfully");
           window.location.href = "index.html";
-      });
+      })
+      .catch(err => alert(err.message));
   }
 
   function login(){
@@ -51,7 +54,10 @@
               password: loginPassword.value
           })
       })
-      .then(res => res.json())
+      .then(res => {
+          if(!res.ok) throw new Error("Login failed");
+          return res.json();
+      })
       .then(user => {
           if(user && user.id){
               localStorage.setItem("userId", user.id);
@@ -59,9 +65,9 @@
           } else {
               alert("Invalid login");
           }
-      });
+      })
+      .catch(err => alert(err.message));
   }
-
 </script>
 
 </body>
